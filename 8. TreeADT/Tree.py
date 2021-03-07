@@ -50,3 +50,64 @@ class Tree:
     def is_empty(self):
         """Return True if the tree is empty."""
         return len(self) == 0
+
+    def depth(self, p):
+        """Return the number of levels separating Position p from the root."""
+        if self.is_root(p):
+            return 0
+        else:
+            return 1 + self.depth(self.parent(p))
+
+    def _height(self, p):
+        """Return the height of the subtree rooted at Position p."""
+        if self.is_leaf(p):
+            return 0
+        else:
+            return 1 + max(self._height(c) for c in self.children(p))
+
+    def height(self, p = None):
+        """Return the height of the subtree rooted at Position p.
+
+        If p is None, return the height of the entire tree.
+        """
+        if p is None:
+            p = self.root()
+        return self._height(p)
+
+    def __iter__(self):
+        """Generate an iteration of the tree's elements."""
+        for p in self.positions():
+            yield p.element()
+
+    def preorder(self):
+        """Generate a preorder iteration of positions in the tree."""
+        if not self.is_empty():
+            for p in self._subtree_preorder(self.root()):
+                yield p
+
+    def _subtree_preorder(self, p):
+        """Generate a preorder iteration of positions in subtree rooted at p."""
+        yield p
+        for c in self.children(p):
+            for other in self._subtree_preorder(c):
+                yield other
+
+    def positions(self):
+        """Generate an iteration of the tree's positions.
+
+        Use preorder.
+        """
+        return self.preorder()
+
+    def postorder(self):
+        """Generate a postorder iteration of positions in the tree."""
+        if not self.is_empty():
+            for p in self._subtree_postorder(self.root()):
+                yield p
+
+    def _subtree_postorder(self, p):
+        """Generate a postorder iteration of positions in subtree rooted at p."""
+        for c in self.children(p):
+            for other in self._subtree_preorder(c):
+                yield other
+        yield p

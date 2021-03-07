@@ -159,7 +159,7 @@ class TreeMap(LinkedBinaryTree.LinkedBinaryTree, MapBase.MapBase):
                     leaf = self._add_right(p, item)     # inherited from LinkedBinaryTree
                 else:
                     leaf = self._add_left(p, item)      # inherited from LinkedBinaryTree
-            self._rebalance_access(p)                   # hook for balanced tree subclasses
+            self._rebalance_insert(leaf)                # hook for balanced tree subclasses
 
     def __iter__(self):
         """Generate an iteration of all keys in the map in order."""
@@ -167,3 +167,65 @@ class TreeMap(LinkedBinaryTree.LinkedBinaryTree, MapBase.MapBase):
         while p is not None:
             yield p.key()
             p = self.after(p)
+
+    def delete(self, p):
+        """Remove the item at given Position."""
+        self._validate(p)
+        if self.left(p) and self.right(p):  # p has two children
+            replacement = self._subtree_last_position(self.left(p))
+            self._replace(p, replacement.element())
+            p = replacement
+        # now p has at most one child
+        parent = self.parent(p)
+        self._delete(p)                 # inherited from LinkedBinaryTree
+        self._rebalance_delete(parent)  # hook for balanced tree subclasses
+
+    def __delitem__(self, k):
+        """Remove item associated with key k (raise KeyError if not found)."""
+        if not self.is_empty():
+            p = self._subtree_search(self.root(), k)
+            if k == p.key():
+                self.delete(p)
+                return
+            self._rebalance_access(p)   # hook for balanced tree subclasses
+        raise KeyError('Key Error: ' + repr(k))
+
+    def _rebalance_insert(self, p): pass
+    def _rebalance_delete(self, p): pass
+    def _rebalance_access(self, p): pass
+
+    def _relink(self, parent, child, make_left_child):
+        """Relink parent node with child node (we allow child to be None)."""
+        if make_left_child:
+            parent._left = child
+        else:
+            parent._right = child
+
+    def _rotate(self, p):
+        """Rotate Position p above its parent."""
+        x = p._node
+        y = x._parent
+        z = y._parent
+        if z is None:
+            x._parent = None                    # x becomes root
+        else:
+            self._relink(z, x, y == z._left)    # x becomes a direct child of z
+        # now rotate x and y, including transfer of middle subtree
+        if x == y._left:
+            self._relink(y, x._right, True)
+            self._relink(x, y, False)
+        else:
+            self._relink(y, x._left, False)
+            self._relink(x, y, True)
+
+    def _restructure(self, x):
+        """Perform tri-node restructure of Position x with parent/grandparent."""
+        y = self.parent(x)
+        z = self.parent(y)
+        if(x == self.right(y)) == (y == self.right(z)):
+            self._rotate(y)
+            return y
+        else:
+            self._rotate(x)
+            self._rotate(x)
+            return x
