@@ -2,32 +2,32 @@ class LinkedStack:
     """LIFO Stack implementation using a singly linked list for storage."""
 
     # -------------------- nested Node class --------------------
-    class Node:
+    class _Node:
         """Lightweight, nonpublic class for storing a singly linked node."""
-        __slots__ = ('element', 'next')
+        __slots__ = ('_element', '_next')
 
         def __init__(self, element, next):
-            self.element = element
-            self.next = next
+            self._element = element
+            self._next = next
 
     # -------------------- stack methods --------------------
     def __init__(self):
         """Create an empty stack."""
-        self.head = None
-        self.size = 0
+        self._head = None
+        self._size = 0
 
     def __len__(self):
         """Return the number of elements in the stack."""
-        return self.size
+        return self._size
 
     def is_empty(self):
         """Return True if the stack is empty."""
-        return self.size == 0
+        return self._size == 0
 
     def push(self, e):
         """Add element e to the top of the stack."""
-        self.head = self.Node(e, self.head)    # create and link a new node
-        self.size += 1
+        self._head = self._Node(e, self._head)      # create and link a new node
+        self._size += 1
 
     def top(self):
         """Return (but do not remove) the element at the top of the stack.
@@ -36,7 +36,7 @@ class LinkedStack:
         """
         if self.is_empty():
             raise Exception('Stack is empty')
-        return self.head.element
+        return self._head._element
 
     def pop(self):
         """Remove and return the element from the top of the stack (i.e. LIFO).
@@ -45,7 +45,7 @@ class LinkedStack:
         """
         if self.is_empty():
             raise Exception('Stack is empty')
-        answer = self.head.element
-        self.head = self.head.next
-        self.size -= 1
+        answer = self._head._element
+        self._head = self._head._next
+        self._size -= 1
         return answer

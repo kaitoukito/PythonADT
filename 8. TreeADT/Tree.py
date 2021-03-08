@@ -1,3 +1,6 @@
+import LinkedQueue
+
+
 class Tree:
     """Abstract base class representing a tree structure."""
 
@@ -93,10 +96,7 @@ class Tree:
                 yield other
 
     def positions(self):
-        """Generate an iteration of the tree's positions.
-
-        Use preorder.
-        """
+        """Generate an iteration of the tree's positions."""
         return self.preorder()
 
     def postorder(self):
@@ -111,3 +111,14 @@ class Tree:
             for other in self._subtree_preorder(c):
                 yield other
         yield p
+
+    def breadthfirst(self):
+        """Generate a postorder iteration of positions in the tree."""
+        if not self.is_empty():
+            fringe = LinkedQueue.LinkedQueue()
+            fringe.enqueue(self.root())
+            while not fringe.is_empty():
+                p = fringe.dequeue()
+                yield p
+                for c in self.children(p):
+                    fringe.enqueue(c)

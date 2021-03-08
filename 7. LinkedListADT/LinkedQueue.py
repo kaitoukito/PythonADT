@@ -9,7 +9,7 @@ class LinkedQueue:
             self._element = element
             self._next = next
 
-    def __int__(self):
+    def __init__(self):
         """Create an empty queue."""
         self._head = None
         self._tail = None
